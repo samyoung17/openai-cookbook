@@ -25,13 +25,12 @@ fpath = '/Users/samyoung/code/openai-cookbook/apps/hydrogen-q-and-a/fine_tuning_
 wiki_paths = list(Path(fpath).rglob('*.md'))
 wikis = [open(wiki_path).read() for wiki_path in wiki_paths]
 
-markdown_splitter = MarkdownTextSplitter(chunk_size=2000, chunk_overlap=0)
+markdown_splitter = MarkdownTextSplitter(chunk_size=5000, chunk_overlap=0)
 texts = markdown_splitter.split_text(wikis)
 
 
 # Based on https://python.langchain.com/en/latest/modules/chains/index_examples/question_answering.html
 embeddings = OpenAIEmbeddings(model='gpt2')
-llm = OpenAI(temperature=0)
 docsearch = Chroma.from_texts(texts, embeddings).as_retriever()
 
 
@@ -42,13 +41,16 @@ queries = [
     'What is the proposed architecture for IoT data pipeline',
     'What is dead reckoning when it comes to hydrogen?',
     'What is the imbalance price?',
-    'How to choose a partition key for kinesis data streams?'
+    'How to choose a partition key for kinesis data streams?',
+    'How does the backend app handle concurrent schedule requests?',
+    'How does the EFA trading calendar change on long clock change day?',
+    'what ORM tools are available to speedup backend development?'
 ]
 query = queries[-1]
 
 
 docs = docsearch.get_relevant_documents(query)
-chain = load_qa_chain(llm, chain_type='stuff')
+chain = load_qa_chain(OpenAI(temperature=0), chain_type='stuff')
 chain.run(input_documents=docs, question=query)
 
 # See: https://python.langchain.com/en/latest/modules/chains/index_examples/hyde.html
@@ -57,5 +59,5 @@ hypothetical_embeddings = HypotheticalDocumentEmbedder.from_llm(multi_llm, embed
 hypothetical_docsearch = Chroma.from_texts(texts, hypothetical_embeddings)
 
 docs2 = hypothetical_docsearch.similarity_search(query)
-chain2 = load_qa_chain(llm, chain_type='stuff')
+chain2 = load_qa_chain(OpenAI(temperature=0), chain_type='stuff')
 chain2.run(input_documents=docs2, question=query)
