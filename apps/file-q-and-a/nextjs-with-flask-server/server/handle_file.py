@@ -49,7 +49,7 @@ def extract_text_from_file(file):
         # Extract text from pdf using PyPDF2
         reader = PdfReader(file)
         extracted_text = ""
-        for page in reader.pages:
+        for page in reader.wikis:
             extracted_text += page.extract_text()
     elif file.mimetype == "text/plain":
         # Read text from plain text file
